@@ -33,3 +33,6 @@ validators==0.22.0
 
 # Progress & Logging
 tqdm==4.66.1
+
+# Production Server
+gunicorn==21.2.0
