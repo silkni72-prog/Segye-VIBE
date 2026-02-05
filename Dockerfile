@@ -19,9 +19,8 @@ COPY . .
 # 출력 디렉토리 생성
 RUN mkdir -p output/audio assets/avatars assets/bgm assets/broll
 
-# 포트 설정
-ENV PORT=8080
+# 포트 설정 (Railway가 자동으로 할당)
 EXPOSE 8080
 
-# 실행 - 쉘 형식으로 환경변수 읽기
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --timeout 300 --workers 2 app:app"]
+# Python으로 직접 실행 (환경변수는 app.py에서 처리)
+CMD ["python", "app.py"]
