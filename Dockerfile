@@ -23,5 +23,5 @@ RUN mkdir -p output/audio assets/avatars assets/bgm assets/broll
 ENV PORT=8080
 EXPOSE 8080
 
-# 실행
-CMD gunicorn --bind 0.0.0.0:$PORT --timeout 300 --workers 2 app:app
+# 실행 - 쉘 형식으로 환경변수 읽기
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --timeout 300 --workers 2 app:app"]
