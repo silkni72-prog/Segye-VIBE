@@ -9,7 +9,7 @@ newspaper3k==0.2.8
 lxml==5.1.0
 
 # AI & NLP
-openai==1.12.0
+openai>=1.30.0
 anthropic==0.18.1
 
 # Text-to-Speech
@@ -17,6 +17,7 @@ elevenlabs==0.2.27
 gTTS==2.5.0
 
 # Video Processing
+numpy<2.0.0
 moviepy==1.0.3
 Pillow==10.2.0
 opencv-python==4.9.0.80
