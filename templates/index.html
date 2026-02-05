@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segye VIBE - 뉴스 쇼츠 자동 생성</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+        
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .preview {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .preview h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .preview .script-section {
+            margin-bottom: 20px;
+        }
+        
+        .preview .script-section h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .preview .script-section p {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .video-list {
+            margin-top: 30px;
+        }
+        
+        .video-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .video-item a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .video-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Segye VIBE</h1>
+            <p>기사 URL 하나로 쇼츠 영상 자동 생성</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="articleUrl">기사 URL</label>
+                <input 
+                    type="url" 
+                    id="articleUrl" 
+                    placeholder="https://www.segye.com/newsView/..."
+                    value="">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="previewScript()">
+                    미리보기
+                </button>
+                <button class="btn btn-primary" onclick="generateVideo()">
+                    <span class="btn-text">영상 생성</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="preview" id="preview"></div>
+        
+        <div class="video-list" id="videoList"></div>
+    </div>
+    
+    <script>
+        // 페이지 로드 시 생성된 영상 목록 불러오기
+        window.onload = function() {
+            loadVideoList();
+        };
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.className = 'status ' + type;
+            status.innerHTML = message;
+            status.style.display = 'block';
+        }
+        
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+        
+        async function previewScript() {
+            const url = document.getElementById('articleUrl').value;
+            
+            if (!url) {
+                showStatus('기사 URL을 입력해주세요.', 'error');
+                return;
+            }
+            
+            hideStatus();
+            showStatus('스크립트 생성 중... <span class="loader"></span>', 'info');
+            
+            try {
+                const response = await fetch('/api/preview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    hideStatus();
+                    displayPreview(data);
+                } else {
+                    showStatus('오류: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showStatus('오류: ' + error.message, 'error');
+            }
+        }
+        
+        function displayPreview(data) {
+            const preview = document.getElementById('preview');
+            const scripts = data.scripts;
+            
+            let html = '<h3>생성된 스크립트 미리보기</h3>';
+            
+            html += '<div class="script-section">';
+            html += '<h4>인트로 (5초)</h4>';
+            html += '<p>' + scripts.intro + '</p>';
+            html += '</div>';
+            
+            html += '<div class="script-section">';
+            html += '<h4>본문 나레이션 (약 50초)</h4>';
+            scripts.narration.forEach((sentence, idx) => {
+                html += '<p>' + (idx + 1) + '. ' + sentence + '</p>';
+            });
+            html += '</div>';
+            
+            html += '<div class="script-section">';
+            html += '<h4>아웃트로 (5초)</h4>';
+            html += '<p>' + scripts.outro + '</p>';
+            html += '</div>';
+            
+            preview.innerHTML = html;
+            preview.style.display = 'block';
+        }
+        
+        async function generateVideo() {
+            const url = document.getElementById('articleUrl').value;
+            
+            if (!url) {
+                showStatus('기사 URL을 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 버튼 비활성화
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> 생성 중...';
+            
+            hideStatus();
+            showStatus('영상 생성 중입니다. 1-2분 정도 소요될 수 있습니다... <span class="loader"></span>', 'info');
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showStatus('✓ ' + data.message + '<br>파일: ' + data.video_path, 'success');
+                    loadVideoList();
+                } else {
+                    showStatus('오류: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showStatus('오류: ' + error.message, 'error');
+            } finally {
+                // 버튼 다시 활성화
+                btn.disabled = false;
+                btn.innerHTML = '<span class="btn-text">영상 생성</span>';
+            }
+        }
+        
+        async function loadVideoList() {
+            try {
+                const response = await fetch('/api/videos');
+                const data = await response.json();
+                
+                if (data.status === 'success' && data.videos.length > 0) {
+                    const listDiv = document.getElementById('videoList');
+                    let html = '<h3>생성된 영상 목록</h3>';
+                    
+                    data.videos.forEach(video => {
+                        const size = (video.size / 1024 / 1024).toFixed(2);
+                        const date = new Date(video.created * 1000).toLocaleString('ko-KR');
+                        
+                        html += '<div class="video-item">';
+                        html += '<div>';
+                        html += '<a href="/api/download/' + video.filename + '" download>' + video.filename + '</a>';
+                        html += '<div style="font-size: 0.9em; color: #666; margin-top: 5px;">';
+                        html += size + 'MB | ' + date;
+                        html += '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                    });
+                    
+                    listDiv.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('영상 목록 로드 실패:', error);
+            }
+        }
+    </script>
+</body>
+</html>
